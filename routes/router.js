@@ -5,6 +5,11 @@ const { registerValidation, loginValidation } = require("../middleware/auth-vali
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+var http = require("http");
+
+router.get("/test", function(req, res) {
+    res.write("tes aja uhuy");
+});
 
 // REGISTER AKUN FISHKU
 router.post("/register", registerValidation, (req, res, next) => {
@@ -80,7 +85,7 @@ router.post("/login", loginValidation, (req, res, next) => {
 });
 
 // MENDAPATKAN DATA CONSUMER DARI DATABASE YG SUDAH TERDAFTAR
-router.get("/consumer", registerValidation, (req, res, next) => {
+router.get("/consumer/:email", registerValidation, (req, res, next) => {
     if (!req.headers.authorization || !req.headers.authorization.startsWith("Bearer") || !req.headers.authorization.split(" ")[1]) {
         return res.status(422).json({
             message: "Sediakan token dari akun yang login",
@@ -88,10 +93,48 @@ router.get("/consumer", registerValidation, (req, res, next) => {
     }
     const theToken = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(theToken, "the-super-strong-secrect");
-    db.query("SELECT * FROM consumer where id = ?", decoded.id, function(err, results, fields) {
+    db.query("SELECT * FROM consumer where email = ?", decoded.id, function(err, results, fields) {
         if (err) throw err;
-        return res.send({ error: false, data: results[0], message: "Data consumer berhasil didapat." });
+        return res.send({ error: false, data: results[0], message: "Data consumer berhasil didapat." }).write("berhasil masup").redirect("/dashboard");
     });
 });
+
+// DASHBOARD (masih bingung cara tampilin dashboard dari akun yg udah di login)
+router.get("/dashboard", (req, res) => {
+
+    const consumer_name = "SELECT * FROM consumer WHERE name = ?";
+    const consumer_address = "SELECT * FROM consumer WHERE address = ?";
+    db.query(consumer_name, consumer_address, (err, result) => {
+        if (err) throw err;
+        return res.send({ data: result, message: "Nama dan alamat ditampilkan" }).get("/consumer/:email")
+    })
+
+    // const token = jwt.sign({ id: result[0].id }, "the-super-strong-secrect"); ?????????
+
+})
+
+// LIST IKAN DI 1 LOKASI
+router.get("/fish_caught", (req, res) => {
+    const fish = "SELECT * FROM fish_caught"
+    db.query(fish, (err, result) => {
+        if (err) throw err;
+        return res.send(result)
+    })
+})
+
+// CARI 1 IKAN BERDASARKAN NAMA
+router.get("/fish_caught/fish_name?search=:fish_name", (req, res) => {
+    const fishName = `SELECT * FROM fish_caught WHERE fish_name = ${fish_name}`
+    db.query(fishName, (err, result) => {
+        if (err) throw err;
+        return res.send(result).get("SELECT * FROM fish_caught WHERE fish_name = ?")
+    })
+})
+
+// DETAIL IKAN
+// router.get("/fish_caught/:fish_name/detail_fish", (req, res) => {
+
+// })
+
 
 module.exports = router;
