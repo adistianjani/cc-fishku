@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 var http = require("http");
 
 router.get("/test", function(req, res) {
-    res.write("test");
+    res.write("tes aja uhuy");
 });
 
 // AS CONSUMER
@@ -414,7 +414,16 @@ router.delete("/deleteFishData/:id_fish", (req, res) => {
 });
 
 // ORDER yg masuk (buat fisher)
-router.get("/order/:id_order", (req, res) => {
+router.get("/getOrder", (req, res) => {
+    const sqlQuery = "SELECT * FROM ordering";
+    db.query(sqlQuery, (err, result) => {
+        if (err) throw err;
+        return res.send(result);
+    });
+
+})
+
+router.get("/getOrder/:id_order", (req, res) => {
     const order = req.params.id_order;
     const sqlQuery = `SELECT * FROM ordering WHERE id_order = ${ order }`;
 
