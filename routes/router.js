@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 var http = require("http");
 
 router.get("/test", function(req, res) {
-    res.write("tes aja uhuy");
+    res.write("test");
 });
 
 // AS CONSUMER
@@ -133,7 +133,7 @@ router.get("/fish_caught", (req, res) => {
 });
 
 // SEARCH IKAN
-router.get("/fish_caught/fish_name?search=:fish_name", (req, res) => {
+router.get("/fish_caught/search?fish_name=:fish_name", (req, res) => {
     const fishName = req.params.fish_name;
     const sqlQuery = `SELECT * FROM fish_caught WHERE fish_name = "${fishName}"`;
     db.query(sqlQuery, (err, result) => {
